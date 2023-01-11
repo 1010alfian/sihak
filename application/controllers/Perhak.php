@@ -499,6 +499,7 @@ class Perhak extends CI_Controller {
             $statusBayar = $this->db->get_where('bukti_bayar', ['id_pemohon' => $field->id_pemohon])->row();
             $sb = isset($statusBayar->status)?($statusBayar->status):0;
 
+
             $button1 = '<button class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="edit('.$field->id_pemohon.')"><i class="fas fa-edit"></i> Edit</button> | <button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
             $button2 = '<button class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="edit('.$field->id_pemohon.')"><i class="fas fa-edit"></i> Edit</button> | <button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
             //$button2 = '<button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';

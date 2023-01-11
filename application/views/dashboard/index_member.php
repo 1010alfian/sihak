@@ -198,7 +198,7 @@
     function pembayaranedit(id){
 
         $.ajax({
-            url: '<?=base_url()?>perhak/edit_pembayaran'+id,
+            url: '<?=base_url()?>perhak/edit_pembayaran/'+id,
             type: 'POST',
             dataType: 'JSON',
             data: {id_pemohon: id},
