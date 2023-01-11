@@ -117,6 +117,20 @@
 		})
 	}
 
+	
+
+    function ketpendingg(){
+		
+
+		$.ajax({
+			type: "POST",
+			success: function(data){
+                $('#modal-keteranganpending').modal('show');
+				$('#ketpending').text(data['keterangan']);
+			}
+		})
+	}
+
     function ket(id){
 		var id = id;
 
@@ -146,6 +160,80 @@
             }
         })
     }
+
+
+// function edit(id){
+//         $.ajax({
+// 			url : '<?=base_url()?>perhak/edit_permohonan/'+id,
+// 			type: "POST",
+// 			dataType: "JSON",
+//             data: {id_pemohon: id},
+// 			success: function(data){
+// 				$('[name="id_pemohon"]').val(data.id_pemohon);
+// 				$('[name="pengajuan"]').val(data.pengajuan);
+// 				$('[name="nama_pemohon_display"]').val(data.nama_pemohon);
+// 				$('[name="nama_pemohon"]').val(data.nama_pemohon);
+// 				$('[name="nik"]').val(data.nik);
+// 				$('[name="ktp_lama"]').val(data.ktp);
+// 				$('[name="ktp_hide"]').val(data.ktp);
+// 				$('[name="luas_tanah"]').val(data.luas_tanah);
+// 				$('[name="alamat"]').val(data.alamat_tanah);
+// 				$('[name="no_imb"]').val(data.no_imb);
+// 				$('[name="imb_lama"]').val(data.dok_imb);
+// 				$('[name="imb_hide"]').val(data.dok_imb);
+// 				$('[name="no_sppt"]').val(data.no_sppt);
+// 				$('[name="sppt_lama"]').val(data.dok_sppt);
+// 				$('[name="sppt_hide"]').val(data.dok_sppt);
+// 				$('[name="no_sertifikat"]').val(data.no_sertifikat);
+// 				$('[name="sertifikat_lama"]').val(data.dok_sertifikat);
+// 				$('[name="sertifikat_hide"]').val(data.dok_sertifikat);
+// 				$('[name="no_berkas"]').val(data.no_berkas);
+// 				$('[name="no_berkas_display"]').val(data.no_berkas);
+// 				$('#modal').modal('show');
+// 			}
+// 		})
+//     }
+
+
+    function pembayaranedit(id){
+
+        $.ajax({
+            url: '<?=base_url()?>perhak/edit_pembayaran'+id,
+            type: 'POST',
+            dataType: 'JSON',
+            data: {id_pemohon: id},
+            success: function(data){
+                $('[name="id_pemohon"]').val(data.id_pemohon);
+                $('[name="id_bukti"]').val(data.id_bukti);
+                $('[name="bukti_bayar"]').val(data.bukti_bayar);
+                $('[name="nominal"]').val(data.nominal);
+                $('[name="nama_pemilik_tabungan"]').val(data.nama_pemilik_tabungan);
+                $('[name="nama_bank"]').val(data.nama_bank);
+                $('[name="no_berkas"]').val(data.no_berkas);
+                $('#modalpembayaran').modal('show');
+            }
+        })
+    }
+
+    function updatepembayaran(){
+        var update = $('#submit')[0];
+
+		$.ajax({
+			url: '<?=base_url()?>perhak/pembayaranupdate',
+			type: 'POST',
+			data: new FormData(update),
+			cache: false,
+			processData: false,
+			dataType: 'json',
+			contentType: false,
+			success: function(data){
+				$('#modalpembayaran').modal('hide');
+				alert('pembayaran berhasil di kirim.');
+				table.ajax.reload();
+				$('#submit')[0].reset();
+			}
+		})
+	}
 
     function bayar(){
         var postData = new FormData($("#bayar")[0]);
@@ -311,6 +399,23 @@
 	</div>
 </div>
 
+<div class="modal" id="modal-keteranganpending">
+	<div class="modal-dialog modal-md" role="document">
+		<div class="modal-content modal-content-demo">
+			<div class="modal-header">
+				<h6 class="modal-title pengajuan">Keterangan</h6><button aria-label="Close" class="close" data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-12">
+						<p id="ketpending">Pembayaran di pending karena kurang biaya atau salah upload bukti pembayaran. Silahkan Upload pembayaran kembali.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div class="modal" id="modal-keterangan">
 	<div class="modal-dialog modal-md" role="document">
 		<div class="modal-content modal-content-demo">
@@ -402,3 +507,54 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal" id="modalpembayaran">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content modal-content-demo">
+			<div class="modal-header">
+				<h6 class="modal-title">Edit Pembayaran</h6><button aria-label="Close" class="close" data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<form id="submit" action="javascript:updatepembayaran()">
+				    <div class="row">
+					    <div class="col-12">
+                               
+                                <input type="hidden" name="id_pemohon">
+                                <input type="hidden" name="id_bayar">
+                                <div class="form-group">
+                                    <label for="no_berkas">No berkas</label>
+                                    <input class="form-control" id="no_berkas" rows="3" name="no_berkas" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nama_bank">Nama Bank</label>
+                                    <input class="form-control" id="nama_bank" rows="3" name="nama_bank" value="nama_bank">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nama_pemilik_tabungan">Nama Pemilik Tabungan</label>
+                                    <input class="form-control" id="nama_pemilik_tabungan" rows="3" name="nama_pemilik_tabungan" value="nama_pemilik_tabungan">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nominal">Nama Pemilik Tabungan</label>
+                                    <input class="form-control" id="nominal" rows="3" name="nominal" value="nominal">
+                                </div>
+                                <div class="form-group">
+                                    <label for="buktibayar_baru">Nama Pemilik Tabungan</label>
+                                    <input type="file" class="form-control" id="buktibayar_baru" rows="3" name="buktibayar_baru" >
+                                    <input type="hidden" name="bukti_bayar">
+                                </div>
+                            <div class="text-right mt-3">
+                                <button class="btn ripple btn-main-primary pd-x-30 mg-r-5 mg-t-5" type="submit" id="update">Update</button>
+                                <!-- <button class="btn btn-danger" onclick="tolak_bayar()">Tolak</button> -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+		</div>
+	</div>
+</div>
+
+
+
+
+

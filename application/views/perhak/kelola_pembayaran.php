@@ -82,7 +82,7 @@
             dataType: 'JSON',
             success: function(data){
                 $('[name="id_bayar"]').val(data.id_bukti);
-                $('[name="bukti_bayar"]').append('<img src="<?=base_url()?>upload/bukti_bayar/' + data.bukti_bayar + '" />');
+                $('[name="bukti_bayar"]').append('<img src="<?=base_url('upload/bukti_bayar/')?>' + data.bukti_bayar + '" />');
                 $('[name="nominal"]').text(data.nominal);
                 $('[name="pemilik_tabungan"]').text(data.nama_pemilik_tabungan);
                 $('[name="nama_bank"]').text(data.nama_bank);
@@ -105,6 +105,25 @@
                 success: function(res){
                     $('#modal-lihat-bayar').modal('hide');
                     alert('Pembayaran di setujui');
+                    reload_datatable();
+                }
+            })
+        }
+    }
+
+    function pending_bayar(){
+        var id = $('[name="id_bayar"]').val();
+        var konfirmasi = confirm("yakin akan di pending ?");
+
+        if(konfirmasi){
+            $.ajax({
+                url: '<?=base_url()?>perhak/pending_bayar',
+                type: 'POST',
+                data: {id_bayar: id},
+                dataType: 'JSON',
+                success: function(res){
+                    $('#modal-lihat-bayar').modal('hide');
+                    alert('Pembayaran di Pending');
                     reload_datatable();
                 }
             })
@@ -155,6 +174,7 @@
 						</table>
                         <div class="text-right mt-3">
                             <button class="btn btn-primary" onclick="setuju_bayar()">Approve</button>
+                            <button class="ml-3 btn btn-warning" onclick="pending_bayar()">Pending</button>
                             <!-- <button class="btn btn-danger" onclick="tolak_bayar()">Tolak</button> -->
                         </div>
 					</div>

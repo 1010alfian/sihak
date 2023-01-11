@@ -48,6 +48,12 @@ class Perhak_model extends CI_Model {
         return $query;
     }
 
+    public function pembayaranupdate($data){
+        $this->db->where('id_pemohon', $data['id_pemohon']);
+        $query = $this->db->update('bukti_bayar', $data);
+        return $query;
+    }
+
     public function updatePengajuan($data){
         $this->db->where('id_pemohon', $data['id_pemohon']);
         $query = $this->db->update('pemohon', $data);

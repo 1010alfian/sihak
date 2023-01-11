@@ -319,6 +319,43 @@ class Perhak extends CI_Controller {
         echo json_encode($save);
     }
 
+    //edit bayar
+    public function pembayaranupdate(){
+        $bukti_bayar = $this->input->post('bukti_bayar');
+        $config = array();
+        $config['upload_path'] = './upload/bukti_bayar/';
+        $config['allowed_types'] = 'jpeg|jpg|png';
+        $this->load->library('upload', $config, 'bukti');
+        $this->bukti->initialize($config);
+        $upload_bukti = $this->bukti->do_upload('buktibayar_baru');
+
+        // Check uploads success
+        if ($upload_bukti) {
+            if($bukti_bayar){
+                $path = './upload/bukti_bayar/'.$this->input->post('bukti_bayar');
+                unlink($path);
+            }
+            $buktibayar = $this->bukti->data('file_name');
+        } else {
+
+        }
+
+        $data = [
+            'id_pemohon' => $this->input->post('id_pemohon'),
+             'id_bukti' => $this->input->post('id_bayar'),
+            'no_berkas' => $this->input->post('no_berkas'),
+            'nama_bank' => $this->input->post('nama_bank'),
+            'nama_pemilik_tabungan' => $this->input->post('nama_pemilik_tabungan'),
+            'nominal' => $this->input->post('nominal'),
+           'bukti_bayar' => isset($buktibayar)?($buktibayar):$bukti_bayar,
+            'status' => 1
+        ];
+
+        $query = $this->perhak_model->pembayaranupdate($data);
+        echo json_encode($query);
+        
+    }
+
     public function update_pengajuan(){
 
         $ktp_lama = $this->input->post('ktp_lama');
@@ -444,6 +481,8 @@ class Perhak extends CI_Controller {
 
         $approve = '<i class="fas fa-check text-success"></i> Approve <br> <i class="fas fa-exclamation-triangle text-warning"></i><span> Segera lakukan pembayaran</span>';
         $approveBayar = '<i class="fas fa-check text-success"></i> Approve <br> <i class="fas fa-hourglass-start text-danger"></i><span> Pembayaran menunggu konfirmasi</span>';
+        $pending = '<i class="fas fa-check text-success"></i> Approve <br> <i class="fas fa-hourglass-start text-danger"></i><span> Pembayaran di pending</span>';
+        $ketpending = '<button class="btn btn-sm" onclick="ketpendingg()"><i class="fas fa-comment-dots text-success"></i> </button>';
         $approveBayarKonfirmasi = '<i class="fas fa-check text-success"></i> Approve <br> <i class="fas fa-check text-success"></i><span> Pembayaran di setujui</span> <br> <i class="fas fa-hourglass-start text-danger"></i><span> Tunggu no booking</span>';
         $belumApprove = '<i class="fas fa-hourglass-start text-danger"></i> Waiting';
         $tolak = '<i class="fas fa-ban text-danger"></i> Ditolak';
@@ -461,9 +500,14 @@ class Perhak extends CI_Controller {
             $sb = isset($statusBayar->status)?($statusBayar->status):0;
 
             $button1 = '<button class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="edit('.$field->id_pemohon.')"><i class="fas fa-edit"></i> Edit</button> | <button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
-            $button2 = '<button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
+            $button2 = '<button class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="edit('.$field->id_pemohon.')"><i class="fas fa-edit"></i> Edit</button> | <button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
+            //$button2 = '<button class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="hapus_pengajuan('.$field->id_pemohon.')"><i class="fas fa-trash"></i> Hapus</button>';
             $button3 = '<button class="btn btn-warning" href="javascript:void(0)" onclick="pembayaran('.$field->id_pemohon.')"><i class="fas fa-dollar-sign"></i> Pembayaran</button>';
+
+            $buttoneditpembayaran = '<button class="btn btn-warning" href="javascript:void(0)" onclick="pembayaranedit('.$field->id_pemohon.')"><i class="fas fa-dollar-sign"></i> Pembayaran</button>';
+
             $ket = '<button class="btn btn-sm" onclick="ket('.$field->id_pemohon.')"><i class="fas fa-comment-dots text-success"></i> </button>';
+
             $button4 = '<button class="btn btn-sm btn-primary" href="javascript:void(0)" onclick="edit('.$field->id_pemohon.')"><i class="fas fa-edit"></i> Edit</button>';
 
             $belumApproveNoHak = '<i class="fas fa-hourglass-start text-danger"></i> Waiting Approve<br> <i class="fas fa-check text-success"></i> No HAK : '.$no_hak;
@@ -481,6 +525,10 @@ class Perhak extends CI_Controller {
                     }else{
                         $status = 'No Hak : '.$no_hak.'<br> Segera buat janji temu';
                     }
+                }
+                elseif($sb == 3){
+                    $status = $pending. "" .$ketpending;
+                    $button = $buttoneditpembayaran;
                 }else{
                     $status = $approve;
                     $button = $button3;
@@ -520,6 +568,12 @@ class Perhak extends CI_Controller {
         $id_pemohon = $this->input->post('id_pemohon');
         $getPemohon = $this->db->get_where('pemohon', ['id_pemohon'=> $id_pemohon])->row();
         echo json_encode($getPemohon);
+    }
+
+    public function edit_pembayaran(){
+        $id_pemohon = $this->input->post('id_pemohon');
+        $getbukti = $this->db->get_where('bukti_bayar', ['id_pemohon'=> $id_pemohon])->row();
+        echo json_encode($getBukti);
     }
 
     public function hapus_pengajuan(){
@@ -698,6 +752,13 @@ class Perhak extends CI_Controller {
         echo json_encode($query);
     }
 
+    //edit pembayaran
+    // public function get_data_pembayaran(){
+    //     $id_pemohon = $this->input->post('id_pemohon');
+    //     $query = $this->perhak_model->getPembayaran($id_pemohon);
+    //     echo json_encode($query);
+    // }
+
     public function simpan_bayar(){
         $config['upload_path'] = './upload/bukti_bayar/';
         $config['allowed_types'] = 'pdf|doc|docx|xlsx|jpg|jpeg|png';
@@ -742,6 +803,9 @@ class Perhak extends CI_Controller {
         $no = $_POST['start'];
 
         $sudahBayar = '<i class="fas fa-check text-success"></i> Sudah Bayar <br> <i class="fas fa-hourglass-start text-danger"></i> Waiting Approve Bayar';
+        $pending = '<i class="fas fa-check text-success"></i> Sudah Bayar <br> <i class="fas fa-hourglass-start text-danger"></i> Pembayaran di pending';
+        
+
         $sudahBayarDanApprove = '<i class="fas fa-check text-success"></i> Sudah Bayar <br> <i class="fas fa-check text-success"></i> Pembayaran di setujui';
         $belumBayar = '<i class="fas fa-ban text-danger"></i> Belum Bayar';
         $approve = '<i class="fas fa-check text-success"></i> Approve Bayar';
@@ -777,6 +841,8 @@ class Perhak extends CI_Controller {
                 }elseif($statusBayar == 1){
                     $status = $sudahBayar;
                     $button = $button2;
+                }elseif($statusBayar == 3){
+                    $status = $pending;
                 }
             }else{
                 $status = $belumBayar;
@@ -803,10 +869,25 @@ class Perhak extends CI_Controller {
         echo json_encode($query);
     }
 
+    public function lihat_bayar_sesuaiuser(){
+        $id_pemohon = $this->input->post('id_bayar');
+        $query = $this->db->get_where('bukti_bayar', ['id_pemohon'=>$id_pemohon])->row();
+        echo json_encode($query);
+    }
+
     public function setuju_bayar(){
         $id_bukti = $this->input->post('id_bayar'); 
 
         $this->db->set('status', 2);
+        $this->db->where('id_bukti', $id_bukti);
+        $query = $this->db->update('bukti_bayar');
+        echo json_encode($query);
+    }
+
+    public function pending_bayar(){
+        $id_bukti = $this->input->post('id_bayar'); 
+
+        $this->db->set('status', 3);
         $this->db->where('id_bukti', $id_bukti);
         $query = $this->db->update('bukti_bayar');
         echo json_encode($query);
